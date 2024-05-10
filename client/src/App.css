@@ -1,0 +1,17 @@
+#root {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2rem;
+  text-align: center;
+}
+
+form {
+  display: flex;
+  flex-flow: column;
+  gap: 20px;
+  align-items: center;
+}
+
+input, label {
+  width: 25%;
+}
