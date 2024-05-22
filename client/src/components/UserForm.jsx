@@ -1,74 +1,143 @@
 import {useState} from 'react'
 
 
-const UserForm = (props) => {
-    const [firstName, setFirstName] = useState('')
-    const [lastName, setLastName] = useState('')
-    const [email, setEmail] = useState('')
-    const [password, setPassword] = useState('')
-    const [confirmPassword, setConfirmPassword] = useState('')
-    const [hasBeenSubmitted, setHasBeenSubmitted] = useState(false)
+const UserForm = ({setPeople}) => {
     
+    const [hasbeenSubmitted, setHasBeenSubmitted] = useState(false)
+    const [ person, setPerson ] = useState({
+        firstName :'',
+        lastName : '',
+        email : '',
+        password : '',
+        confirmPassword : ''
+    })
+
+    const [errors, setErrors] = useState({
+        firstName:'',
+        lastName: '',
+        email: '',
+        password: '',
+        confirmPassword: ''
+    })
+    
+    
+    
+    const readyToSubmit = () => {
+        for(let key in errors){
+            if(errors [key] !== true){
+                return false
+            }
+        }
+    }
+
+    const validatePersonAttribute = (name, value) => {
+        const validations = {
+            firstName : value => value.length >= 3? '' : 'First Name needs at least 3 characters',
+            lastName : value => value.length >= 3? '' : 'Last Name needs at least 3 characters',
+            email : value => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)? '' : 'Email must be valid',
+            password : value => value.length >= 8? '' : 'Password must be at least 8 characters',
+            confirmPassword : value => {
+                if (name == 'confirmPassword'){return person.password === value? '' : 'Passwords must match'}
+                if (name == "password"){return person.confirmPassword === value? '' : 'Passwords must match'}
+            } 
+        }
+        if (name == 'password'){setErrors(prev => ({...prev, confirmPassword: validations['confirmPassword'](value)} ) ) }
+        setErrors(prev => ({...prev, [name]: validations[name](value)}))
+    }
+
+    const updatePerson = (e) => {
+        const {name, value} = e.target
+        setPerson(prev => ({...prev, [name]: value}))
+        validatePersonAttribute(name, value)
+    }
+
     const submitHandler = (e) => {
         e.preventDefault()
-        const userObject = {
-            firstName,
-            lastName,
-            email,
-            password
+        if (!readyToSubmit){
+            alert('Please make corrections to the form')
+            return 
         }
-        console.log(userObject)
-        setFirstName('')
-        setLastName('')
-        setEmail('')
-        setPassword('')
-        setConfirmPassword('')
+        setPeople(prev => [...prev, person])
+        setPerson({
+            firstName:'',
+            lastName: '',
+            email: '',
+            password: '',
+            confirmPassword: ''
+        })
         setHasBeenSubmitted(true)
     }
-    const formMessage = () => {
-        if(hasBeenSubmitted){
-            return <h1>"Thank you for submitting the form"</h1>
-        } else {
-            return <h1>"Welcome, please submit the form"</h1>
-        }
-    }
+
+    
     return (
-        <>
-            <h1>{formMessage()}</h1>
             <form onSubmit={submitHandler}>
-                <label>First Name:</label>
-                <input type="text"  onChange={(e) => setFirstName(e.target.value)} value={firstName} 
-                placeholder="Please enter First Name"/> 
                 {
-                    firstName.length < 2? "First Name must be more than 2 characters": null
+                    hasbeenSubmitted?
+                    <h1>Thank you for submitting the form</h1> :
+                    <h1>Welcome, please submit the form</h1>
                 }
-                <label>Last Name:</label>
-                <input type="text"  onChange={(e) => setLastName(e.target.value)} value={lastName}
-                placeholder="Please enter Last Name"/> 
-                {
-                    lastName.length < 2? "Last Name must be more than 2 characters": null
-                }
-                <label>Email:</label>
-                <input type="email"  onChange={(e) => setEmail(e.target.value)} value={email}
-                placeholder="Please enter Email"/>
-                {
-                    email.length < 8? "Email needs to be more than 8 characters": null
-                }
-                <label>Password:</label>
-                <input type="password"  onChange={(e) => setPassword(e.target.value)} value={password}
-                placeholder="Please enter Password"/> 
-                {
-                    password.length < 8? "Password needs to be more than 8 characters": null
-                }
-                <label>Confirm Password:</label>
-                <input type="password" onChange={(e) => setConfirmPassword(e.target.value)} value={confirmPassword} 
-                placeholder="Please enter Confirm Password"/>
-                {
-                    confirmPassword === password? null: "Confirm Password must match"
-                }
-                <input type="submit" value="Create User"/>
+                <label>
+                    First Name:
+                    <input 
+                        type="text"
+                        name="firstName"  
+                        value={person.firstName} 
+                        onInput={updatePerson} 
+                        placeholder="Please enter First Name"/> 
+                    {
+                        errors.firstName
+                    }
+                </label>
+                <label>
+                    Last Name:
+                    <input 
+                        type="text"
+                        name="lastName"  
+                        value={person.lastName}
+                        onInput={updatePerson} 
+                        placeholder="Please enter Last Name"/> 
+                    {
+                        errors.lastName
+                    }
+                </label>
+                <label>
+                    Email:
+                    <input 
+                        type="email" 
+                        name="email" 
+                        value={person.email}
+                        onInput={updatePerson} 
+                        placeholder="Please enter Email"/>
+                    {
+                        errors.email
+                    }
+                </label>
+                <label>
+                    Password:
+                    <input 
+                        type="password"
+                        name="password"  
+                        value={person.password}
+                        onInput={updatePerson} 
+                        placeholder="Please enter Password"/> 
+                    {
+                        errors.password
+                    }
+                </label>
+                <label>
+                    Confirm Password:
+                    <input 
+                        type="password"
+                        name="confirmPassword" 
+                        value={person.confirmPassword} 
+                        onInput={updatePerson} 
+                        placeholder="Please enter Confirm Password"/>
+                </label>
+                    {
+                        errors.confirmPassword
+                    }
+                <input type="submit" value="Create User" className='button'/>
             </form>
-        </>
     )
 }
 

@@ -5,13 +5,19 @@
   text-align: center;
 }
 
-form {
+label {
   display: flex;
   flex-flow: column;
   gap: 20px;
   align-items: center;
+  margin-top: 10px;
 }
 
-input, label {
+input {
   width: 25%;
+}
+
+.button {
+  margin-top: 20px;
+  width: 10%;
 }
